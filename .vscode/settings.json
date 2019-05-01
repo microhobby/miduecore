@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.linux": {
+        "PATH": "/home/castello/.platformio/penv/bin:/home/castello/.platformio/penv:/usr/local/Qt-5.12.1/bin/:/home/castello/.dotnet/:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
