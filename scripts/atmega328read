@@ -1,0 +1,5 @@
+#!/bin/bash
+
+avrdude -v -patmega328p -cusbasp -Pusb -F
+
+echo "Success?"

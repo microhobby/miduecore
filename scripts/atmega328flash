@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# set fuses to arduino duemilanove
+#avrdude -v -patmega328p -cusbasp -Pusb -U lfuse:w:0xFF:m
+#avrdude -v -patmega328p -cusbasp -Pusb -U efuse:w:0xFD:m
+#avrdude -v -patmega328p -cusbasp -Pusb -U hfuse:w:0xDA:m
+
+# read eeprom
+#avrdude -v -patmega328p -cusbasp -Pusb -Ueeprom:r:eeprom.hex:i
+
+# flash
+avrdude -v \
+	-patmega328p \
+	-cusbasp \
+	-Pusb \
+	-Uflash:w:.pioenvs/uno/firmware.hex:i \
+	-Ueeprom:w:scripts/eeprom.hex:i
+
+echo "Success?"

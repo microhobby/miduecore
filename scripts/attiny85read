@@ -1,0 +1,5 @@
+#!/bin/bash
+
+avrdude -v -pattiny85 -cusbasp -Pusb
+
+echo "Success?"

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+avrdude -v -pattiny85 -cusbasp -Pusb -Uflash:w:../.pioenvs/uno/firmware.hex:i
+
+echo "Success?"
