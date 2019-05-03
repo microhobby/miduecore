@@ -1,23 +1,24 @@
 #include "castellino.h"
 #include <EEPROM.h>
 
-Castellino::Castellino(void (* callBack)(void))
+Castellino::Castellino()
 {
 	registerUtilsTasks();
-	coreIRQReceiveCallback = callBack;
 }
 
-Castellino::Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int))
+Castellino::Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
+	void (* callBackI2CRequest)(int))
 {
 	registerUtilsTasks();
 	coreIRQReceiveCallback = callBackIRQ;
 	coreI2CReceiveCallback = callBackI2C;
+	coreI2CRequestCallback = callBackI2CRequest;
 }
 
 void Castellino::init()
 {
 	checkEepromAndSetIRQ(coreIRQReceiveCallback);
-	connectCores(coreI2CReceiveCallback);
+	connectCores();
 }
 
 void Castellino::registerUtilsTasks()
@@ -47,7 +48,7 @@ void Castellino::checkEepromAndSetIRQ(void (* callBack)(void))
 	}
 }
 
-void Castellino::connectCores(void (* callBack)(int))
+void Castellino::connectCores()
 {
 	if (core1) {
 		Wire.begin();
@@ -55,6 +56,7 @@ void Castellino::connectCores(void (* callBack)(int))
 	} else {
 		Wire.begin(8);
 		Wire.onReceive(coreI2CReceiveCallback);
+		Wire.onRequest(coreI2CRequestCallback);
 		delay(200);
 	}
 }
@@ -89,6 +91,34 @@ void Castellino::eventCoreReceived(int size, Castellino* obj)
 	obj->coreExecute(command, arg);
 }
 
+void Castellino::eventCoreRequest (Castellino* obj)
+{
+	char strRet[6];
+	int ix = 0;
+
+	Wire.requestFrom(8, 6);
+	while (Wire.available()) {
+		char c = Wire.read();
+		strRet[ix] = c;
+		ix++;
+	}
+	strRet[ix] = '\0';
+
+	obj->core2Return = atoi(strRet);
+
+	/* check if user have some event for core2 return */
+	if (obj->onCore2Return)
+		obj->onCore2Return();
+}
+
+void Castellino::coreRequestWriteReturn (Castellino* obj)
+{
+	char retStr[6];
+
+	itoa(obj->core2Return, retStr, 10);
+	Wire.write(retStr);
+}
+
 void Castellino::eventCoreFree(int size, Castellino* obj, 
 	void (* callBack)(int))
 {
@@ -106,8 +136,13 @@ void Castellino::eventCoreFree(int size, Castellino* obj,
 
 	res = atoi(command);
 	obj->core2Return = res;
+	
+	/* check if user have some event for core2 return */
+	if (obj->onCore2Return)
+		obj->onCore2Return();
+
 	/* back core1 to master */
-	obj->connectCores(callBack);
+	obj->connectCores();
 }
 
 int Castellino::setPinModeOut(int pin)
@@ -256,26 +291,11 @@ void Castellino::exec()
 		if (core2) {
 			/* send return */
 			if (ret != -1) {
-				/* convert return to string */
-				itoa(ret, retStr, 10);
-
-				/* actual function end set irq */
+				core2Return = ret;
+				/* send irq */
 				digitalWrite(CORE_IRQ, HIGH);
 				delay(100);
 				digitalWrite(CORE_IRQ, LOW);
-
-				/* core2 is master now */
-				switchMasterSlave(NULL);
-
-				/* transmit return */
-				Wire.beginTransmission(8);
-				Wire.write(retStr);
-				Wire.write(ret);
-				Wire.endTransmission();
-				delay(100);
-
-				/* back to slave */
-				connectCores(coreI2CReceiveCallback);
 			}
 		}
 	} else if (taskPtr < taskCount) {

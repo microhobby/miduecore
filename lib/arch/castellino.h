@@ -26,6 +26,7 @@ private:
 	bool core2 = false;
 	void (*coreIRQReceiveCallback)(void);
 	void (*coreI2CReceiveCallback)(int);
+	void (*coreI2CRequestCallback)(int);
 	int arg0 = 0;
 	int countCommands = 0;
 	int (*coreExecNow)(int) = NULL;
@@ -45,16 +46,20 @@ private:
 
 public:
 	volatile int core2Return = 0;
-	Castellino(void (* callBack)(void));
-	Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int));
+	void (*onCore2Return)(void) = nullptr;
+	Castellino(void);
+	Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
+		void (* callBackI2CRequest)(int));
 	~Castellino();
 	static void eventCoreReceived(int size, Castellino* obj);
+	static void eventCoreRequest(Castellino* obj);
+	static void coreRequestWriteReturn(Castellino* obj);
 	static void eventCoreFree(int res, Castellino* obj,
 		void (* callBack)(int));
 	static int setPinModeOut(int pin);
 	static int setPinModeInp(int pin);
 	void init(void);
-	void connectCores(void (* callBack)(int));
+	void connectCores();
 	void switchMasterSlave(void (*callBack)(int));
 	int setPinMode(uint8_t pin, uint8_t mode);
 	void addCommand(const char* name, int (*command)(int));
