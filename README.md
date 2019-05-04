@@ -15,6 +15,13 @@ that there is data to be shared.
 For the development of the project source code I am using Visual Studio
 Code with the extension of PlatformIO.
 
+For serial debug of SDK use on platformio.ini:
+
+```bash
+build_flags =
+	-DDEBUG
+```
+
 ## Flash
 
 Use an USBasp programmer.
