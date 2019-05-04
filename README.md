@@ -2,9 +2,9 @@
 
 Este é o meu prototipo de Arduino Dual core:
 
-<center>
+<p align="center">
 	<img src="./fritzing/miduecore_bb.png"/>
-</center>
+</p>
 
 Dois ATMega328P utilizando a mesma fonte de energia e clock.
 Para intercomunicação utiliza I2C e interrupções para avisar o núcleo mestre
@@ -84,31 +84,26 @@ Nesse repositório temos um exemplo da utilização do SDK para o Arduino Dual C
 Cada função é uma tarefa e o valor retornado da função, se for diferente de -1,
 será compartilhado entre os núcleos.
 
-<center>
+<p align="center">
 	<img src="./res/blink14.png"/>
-</center>
+</p>
 
-<center>
+<p align="center">
 	<img src="./res/blink5.png"/>
-</center>
+</p>
 
-<center>
+<p align="center">
 	<img src="./res/blink4.png"/>
-</center>
+</p>
 
 
 Com as funções/tarefas definidas podemos utilizar o SDK para montar filas de
 execução, também podemos dizer em qual core cada tarefa será executada:
 
-<center>
+<p align="center">
 	<img src="./res/miduecore_sections.png"/>
-</center>
+</p>
 
 ### Example in action
 
-<iframe width="560" height="315"
-	src="http://youtu.be/cl0sgdi3blo" 
-	frameborder="0" 
-	allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" 
-	allowfullscreen>
-</iframe>
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/cl0sgdi3blo/0.jpg)](https://www.youtube.com/watch?v=cl0sgdi3blo)
