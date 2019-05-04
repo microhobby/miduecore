@@ -23,7 +23,7 @@ int blink5(int arg)
 /* blink4 will be exec on Core2 */
 int blink4(int arg)
 {
-	for (int i = 0; i < 4; i++) {
+	for (int i = 0; i < 10; i++) {
 		digitalWrite(led4, HIGH);
 		delay(arg);
 		digitalWrite(led4, LOW);
@@ -70,7 +70,7 @@ void setup()
 	CORE.addExecTask(blink5, CORE2);
 	CORE.addExecTask(blink4, CORE2, 200);
 
-	/* and after the tasks end start blink5 again */
+	/* and after the tasks on core2 end start blink5 again */
 	CORE.onCore2Return = []() {
 		if (CORE.core2Return == 4) {
 			CORE.core2Return = 500;
