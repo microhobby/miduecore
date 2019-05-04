@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <initCastellino.h>
+#include <core.h>
 
 /* pins */
 int led5;
