@@ -1,29 +1,29 @@
 # Miduecore - Dual Core Arduino Prototype
 
-Este é o meu prototipo de Arduino Dual core:
+This is my Arduino Dual Core prototype:
 
 <p align="center">
 	<img src="./fritzing/miduecore_bb.png"/>
 </p>
 
-Dois ATMega328P utilizando a mesma fonte de energia e clock.
-Para intercomunicação utiliza I2C e interrupções para avisar o núcleo mestre
-que há dados a serem compartilhados.
+Two ATMega328P using the same power source and clock.
+For intercom uses I2C and interrupts to notify the master core
+that there is data to be shared.
 
-## Compilação
+## Development - Compilation
 
-Para o desenvolvimento do código do projeto estou utilizando o Visual Studio
-Code com a extensão do PlatformIO.
+For the development of the project source code I am using Visual Studio
+Code with the extension of PlatformIO.
 
 ## Flash
 
-Utilize um programador USBasp.
+Use an USBasp programmer.
 
-Para o correto funcionamento da aplicação temos que definir um dos
-microcontroladores como sendo o Master, núcleo 1. Ele que terá o poder de
-requisitar que novas tarefas sejam executadas no núcleo 2.
+For the correct functioning of the application we have to define one of the
+microcontrollers as the Master, core1. It will have the power to
+request new tasks to be performed on core2.
 
-Para flashar um microcontrolador como master utilize o comando:
+To flash a microcontroller as master use the command:
 
 ```bash
 avrdude -v \
@@ -34,7 +34,7 @@ avrdude -v \
 	-Ueeprom:w:scripts/eeprom.hex:i
 ```
 
-Para flashar um microcontrolador como slave utilize o comando:
+To flash a microcontroller as slave use the command:
 
 ```bash
 avrdude -v \
@@ -43,16 +43,15 @@ avrdude -v \
 	-Pusb \
 	-Uflash:w:.pioenvs/uno/firmware.hex:i
 ```
-
-Lembrando que os dois microcontroladores terão o mesmo código, a única coisa
-que os difere é um número mágico inserido na EEPROM do núcleo que funcionará
-como Master.
+Remembering that the two microcontrollers will have the same code, the only thing
+that differs them is a magic number inserted into the EEPROM of the core that will work
+as Master.
 
 ## SDK
 
-Para a programação transparente dos microcontroladores um SDK foi desenvolvido.
-Assim deixando o programador com a sensação de estar desenvolvendo para um
-dispositivo único.
+For the transparent programming of the microcontrollers an SDK was developed.
+So leaving the programmer with the feeling of developing for a single
+device.
 
 * **CORE.init()**
 	* In this method the EEPROM is checked and the firmware discovers
@@ -84,6 +83,9 @@ Nesse repositório temos um exemplo da utilização do SDK para o Arduino Dual C
 Cada função é uma tarefa e o valor retornado da função, se for diferente de -1,
 será compartilhado entre os núcleos.
 
+Each function is a task and the value returned from the function, if it is different from -1,
+will be shared between the cores.
+
 <p align="center">
 	<img src="./res/blink14.png"/>
 </p>
@@ -96,9 +98,8 @@ será compartilhado entre os núcleos.
 	<img src="./res/blink4.png"/>
 </p>
 
-
-Com as funções/tarefas definidas podemos utilizar o SDK para montar filas de
-execução, também podemos dizer em qual core cada tarefa será executada:
+With the functions/tasks defined we can use the SDK to mount
+execution queues, we can also tell in which core each task will be executed:
 
 <p align="center">
 	<img src="./res/miduecore_sections.png"/>
