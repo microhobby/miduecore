@@ -99,7 +99,7 @@ void Castellino::eventCoreReceived(int size, Castellino* obj)
 	Serial.println("eventCoreReceived");
 	Serial.print("FUN:: ");
 	Serial.print(command);
-	Serial.print("ARG:: ");
+	Serial.print(" ARG:: ");
 	Serial.println(arg);
 #endif
 }
@@ -196,8 +196,8 @@ int Castellino::setPinModeInp(int pin)
 void Castellino::coreExecute(char* fun, int arg)
 {
 	if (commands.getIndexStr(fun) != -1) {
-		coreExecNow = commands.getValueOfStr(fun);
-		arg0 = arg;
+		addExecTask(commands.getValueOfStr(fun), 
+			core1 ? CORE1 : CORE2, arg);
 	}
 }
 
@@ -265,8 +265,7 @@ void Castellino::execOn(char* command, uint8_t core, int arg)
 {
 	if (commands.getIndexOf(command) != -1 && core1) {
 		if (core == CORE1) {
-			coreExecNow = commands.getValueOf(command);
-			arg0 = arg;
+			addExecTask(commands.getValueOf(command), core, arg);
 		} else {
 			Wire.beginTransmission(8);
 			Wire.write(command);
@@ -285,8 +284,7 @@ void Castellino::execOn(int (*command)(int), uint8_t core, int arg)
 {
 	if (executions.getIndexOf(command) != -1 && core1) {
 		if (core == CORE1) {
-			coreExecNow = command;
-			arg0 = arg;
+			addExecTask(command, core, arg);
 		} else {
 			Wire.beginTransmission(8);
 			Wire.write(executions.getValueOf(command));
@@ -319,7 +317,6 @@ void Castellino::addExecTask(int (*command)(int), uint8_t core, int arg)
 void Castellino::exec()
 {
 	int ret = -1;
-	char retStr[100];
 
 	if (coreExecNow) {
 		ret = coreExecNow(arg0);
