@@ -104,6 +104,6 @@ execução, também podemos dizer em qual core cada tarefa será executada:
 	<img src="./res/miduecore_sections.png"/>
 </p>
 
-### Example in action
+### Example in action - Link Youtube video
 
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/cl0sgdi3blo/0.jpg)](https://www.youtube.com/watch?v=cl0sgdi3blo)
