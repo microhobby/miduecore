@@ -7,7 +7,7 @@ Castellino::Castellino()
 }
 
 Castellino::Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
-	void (* callBackI2CRequest)(int))
+	void (* callBackI2CRequest)(void))
 {
 	registerUtilsTasks();
 	coreIRQReceiveCallback = callBackIRQ;
@@ -17,6 +17,11 @@ Castellino::Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
 
 void Castellino::init()
 {
+#ifdef DEBUG
+	Serial.begin(SERIAL_BAUD_RATE);
+	Serial.println("init");
+#endif
+
 	checkEepromAndSetIRQ(coreIRQReceiveCallback);
 	connectCores();
 }
@@ -40,7 +45,7 @@ void Castellino::checkEepromAndSetIRQ(void (* callBack)(void))
 		attachInterrupt(
 			digitalPinToInterrupt(CORE_IRQ_RECEIVE),
 			callBack, 
-			RISING
+			CHANGE
 		);
 	} else {
 		core2 = true;
@@ -52,12 +57,10 @@ void Castellino::connectCores()
 {
 	if (core1) {
 		Wire.begin();
-		delay(500);
 	} else {
 		Wire.begin(8);
 		Wire.onReceive(coreI2CReceiveCallback);
 		Wire.onRequest(coreI2CRequestCallback);
-		delay(200);
 	}
 }
 
@@ -79,6 +82,8 @@ void Castellino::eventCoreReceived(int size, Castellino* obj)
 	char command[200];
 	int ix = 0;
 
+	//interrupts();
+
 	while (1 < Wire.available()) {
 		c = Wire.read();
 		command[ix] = c;
@@ -89,12 +94,26 @@ void Castellino::eventCoreReceived(int size, Castellino* obj)
 	/* read the arg */
 	int arg = Wire.read();
 	obj->coreExecute(command, arg);
+
+#ifdef DEBUG
+	Serial.println("eventCoreReceived");
+	Serial.print("FUN:: ");
+	Serial.print(command);
+	Serial.print("ARG:: ");
+	Serial.println(arg);
+#endif
 }
 
 void Castellino::eventCoreRequest (Castellino* obj)
 {
-	char strRet[6];
+	char strRet[8];
 	int ix = 0;
+
+	interrupts();
+
+#ifdef DEBUG
+	Serial.println("eventCoreRequest");
+#endif
 
 	Wire.requestFrom(8, 6);
 	while (Wire.available()) {
@@ -109,14 +128,31 @@ void Castellino::eventCoreRequest (Castellino* obj)
 	/* check if user have some event for core2 return */
 	if (obj->onCore2Return)
 		obj->onCore2Return();
+	
+#ifdef DEBUG
+	Serial.print("RET:: ");
+	Serial.println(obj->core2Return);
+#endif
 }
 
 void Castellino::coreRequestWriteReturn (Castellino* obj)
 {
 	char retStr[6];
 
+	//interrupts();
+
+#ifdef DEBUG
+	Serial.println("coreRequestWriteReturn");
+#endif
+
 	itoa(obj->core2Return, retStr, 10);
 	Wire.write(retStr);
+	Wire.write(obj->core2Return);
+
+#ifdef DEBUG
+	Serial.print("RET:: ");
+	Serial.println(retStr);
+#endif
 }
 
 void Castellino::eventCoreFree(int size, Castellino* obj, 
@@ -292,10 +328,9 @@ void Castellino::exec()
 			/* send return */
 			if (ret != -1) {
 				core2Return = ret;
+				pinIRQValue = !pinIRQValue;
 				/* send irq */
-				digitalWrite(CORE_IRQ, HIGH);
-				delay(100);
-				digitalWrite(CORE_IRQ, LOW);
+				digitalWrite(CORE_IRQ, pinIRQValue);
 			}
 		}
 	} else if (taskPtr < taskCount) {

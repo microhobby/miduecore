@@ -18,15 +18,18 @@
 class Castellino
 {
 private:
+	/* methods */
 	void coreExecute(char* fun, int arg);
 	void registerUtilsTasks(void);
 	void checkEepromAndSetIRQ(void (* callBack)(void));
 
+	/* properties */
 	bool core1 = false;
 	bool core2 = false;
+	uint8_t pinIRQValue = 0x0;
 	void (*coreIRQReceiveCallback)(void);
 	void (*coreI2CReceiveCallback)(int);
-	void (*coreI2CRequestCallback)(int);
+	void (*coreI2CRequestCallback)(void);
 	int arg0 = 0;
 	int countCommands = 0;
 	int (*coreExecNow)(int) = NULL;
@@ -34,7 +37,6 @@ private:
 	int taskCount = 0;
 	int (*coreTasks[API_MAX_TASKS])(int);
 	int coreTasksArgs[API_MAX_TASKS];
-
 	HashType<const char*, coreCallBack> commandsType[API_MAX_CALLBACKS];
 	HashType<coreCallBack, const char*> executionType[API_MAX_CALLBACKS];
 	HashMap<const char*, coreCallBack> commands = 
@@ -45,12 +47,11 @@ private:
 			API_MAX_CALLBACKS);
 
 public:
+	/* properties */
 	volatile int core2Return = 0;
 	void (*onCore2Return)(void) = nullptr;
-	Castellino(void);
-	Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
-		void (* callBackI2CRequest)(int));
-	~Castellino();
+	
+	/* static methods */
 	static void eventCoreReceived(int size, Castellino* obj);
 	static void eventCoreRequest(Castellino* obj);
 	static void coreRequestWriteReturn(Castellino* obj);
@@ -58,6 +59,14 @@ public:
 		void (* callBack)(int));
 	static int setPinModeOut(int pin);
 	static int setPinModeInp(int pin);
+	
+	/* constructors */
+	Castellino(void);
+	Castellino(void (* callBackIRQ)(void), void (* callBackI2C)(int),
+		void (* callBackI2CRequest)(void));
+	~Castellino();
+
+	/* methods */
 	void init(void);
 	void connectCores();
 	void switchMasterSlave(void (*callBack)(int));
