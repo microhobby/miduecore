@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <initCastellino.h>
 
-/* the core master */
+/* pins */
 int led5;
 int led4;
 int led14;
@@ -23,14 +23,14 @@ int blink5(int arg)
 /* blink4 will be exec on Core2 */
 int blink4(int arg)
 {
-	while(1) {
+	for (int i = 0; i < 4; i++) {
 		digitalWrite(led4, HIGH);
 		delay(arg);
 		digitalWrite(led4, LOW);
 		delay(arg);		
 	}
 
-	return -1;
+	return 4;
 }
 
 /* blink14 will be exec on Core1 */
@@ -42,7 +42,7 @@ int blink14(int arg)
 		digitalWrite(led14, HIGH);
 		delay(CORE.core2Return);
 		digitalWrite(led14, LOW);
-		delay(CORE.core2Return);		
+		delay(CORE.core2Return);
 	}
 
 	return -1;
@@ -69,6 +69,14 @@ void setup()
 	/* Core2 queue tasks */
 	CORE.addExecTask(blink5, CORE2);
 	CORE.addExecTask(blink4, CORE2, 200);
+
+	/* and after the tasks end start blink5 again */
+	CORE.onCore2Return = []() {
+		if (CORE.core2Return == 4) {
+			CORE.core2Return = 500;
+			CORE.execOn(blink5, CORE2);
+		}
+	};
 }
 
 void loop()
