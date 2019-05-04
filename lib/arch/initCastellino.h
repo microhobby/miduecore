@@ -12,7 +12,7 @@
 
 void castellino_onCore2IRQ();
 void castellino_onReceiveCommand(int size);
-void castellino_onCore2Free(int size);
+void castellino_onCore2Free();
 
 /* new Castellino Core */
 Castellino CORE(castellino_onCore2IRQ, castellino_onReceiveCommand,
@@ -34,7 +34,7 @@ void castellino_onReceiveCommand(int size)
 }
 
 /* core2 I2C irq to send data from task end to core1 */
-void castellino_onCore2Free(int size)
+void castellino_onCore2Free()
 {
 	Castellino::coreRequestWriteReturn(&CORE);
 }
