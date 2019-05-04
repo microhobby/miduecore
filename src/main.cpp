@@ -70,7 +70,8 @@ void setup()
 	CORE.addExecTask(blink5, CORE2);
 	CORE.addExecTask(blink4, CORE2, 200);
 
-	/* and after the tasks on core2 end start blink5 again */
+	/* and after the tasks on core2 are fineshed
+		start blink5 again */
 	CORE.onCore2Return = []() {
 		if (CORE.core2Return == 4) {
 			CORE.core2Return = 500;
